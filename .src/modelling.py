@@ -35,20 +35,18 @@ class MultiTaskRoberta(RobertaPreTrainedModel):
         loss = None
         if label_emo is not None and label_act is not None:
 
-            # 1. Get raw Cross Entropy (no weights) to calculate true probabilities
-            raw_ce = F.cross_entropy(emo_logits, label_emo, reduction='none')
-            pt = torch.exp(-raw_ce) # pt is the probability of the correct class
-            
-            # 2. Apply the Focal Term: (1 - pt)^gamma
-            focal_term = (1 - pt) ** self.gamma
-            
-            # 3. Combine with weights and mean ensure each sample gets its class weight
-            weights = self.emo_weights[label_emo]
-            weighted_focal_loss = (focal_term * raw_ce * weights).sum() / weights.sum()
+            # Retrieve emotion weights securely from config to avoid initialization corruption via accelerate / fast_init
+            secure_emo_weights = None
+            if hasattr(self.config, "emo_weights") and self.config.emo_weights is not None:
+                secure_emo_weights = torch.tensor(self.config.emo_weights, dtype=torch.float32, device=emo_logits.device)
+
+            # Native PyTorch Cross Entropy is optimized and strictly normalizes weights.
+            # Cast logits to fp32 to prevent FP16 autocast NaN overflows with fp32 weight tensors.
+            emo_loss = F.cross_entropy(emo_logits.float(), label_emo, weight=secure_emo_weights)
 
             #  ACT LOSS 
-            act_loss = F.cross_entropy(act_logits, label_act)
+            act_loss = F.cross_entropy(act_logits.float(), label_act)
 
-            # Prioritize Emotion (0.7) as it's the harder task
-            loss = (0.8 * weighted_focal_loss) + (0.2 * act_loss)
+            # Prioritize Emotion (0.8) as it's the harder task
+            loss = (0.7 * emo_loss) + (0.3 * act_loss)
         return (loss, (emo_logits, act_logits)) if loss is not None else ((emo_logits, act_logits),)

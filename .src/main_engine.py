@@ -57,7 +57,7 @@ if __name__ == "__main__":
     # In main_engine.py
 
     # Start training
-    train_result = trainer.train() # This also does the best-model evaluation!
+    train_result = trainer.train(resume_from_checkpoint=True)
     print("\nTraining complete!")
 
     # Access metrics from the training result

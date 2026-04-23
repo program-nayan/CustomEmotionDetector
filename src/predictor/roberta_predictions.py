@@ -43,22 +43,17 @@ class RobertaEmotionPredictor():
             # get probabilities using softmax function
             emo_probs = F.softmax(input= emo_logits, dim=-1)
             act_probs = F.softmax(input= act_logits, dim=-1)
-            print(emo_probs)
-
-            # get the actual predicted label
-            emo_idx = torch.argmax(input = emo_probs, dim=-1).item()
-            act_idx = torch.argmax(input = act_probs, dim=-1).item()
 
             # scores dict
             emo_score_dict = {}
             for i in range(7):
-                emo_score_dict[i] = round(emo_probs[0][i].item(), 2)
+                emo_score_dict[i] = emo_probs[0][i].item()
             act_score_dict = {}
             for i in range(4):
-                act_score_dict[i] = round(act_probs[0][i].item(), 2)
+                act_score_dict[i] = act_probs[0][i].item()
 
         return {
-            "emotion scores" : emo_score_dict,
-            "act scores" : act_score_dict
+            "Emotion Scores" : emo_score_dict,
+            "Act Scores" : act_score_dict
         }
     

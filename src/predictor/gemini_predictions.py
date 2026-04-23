@@ -66,3 +66,4 @@ class GeminiEmotion():
             print(f"Parsing failed: {e}")
             return res
             
+        

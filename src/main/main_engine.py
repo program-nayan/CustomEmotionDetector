@@ -1,15 +1,13 @@
-from data_ingestion import DataIngestion
-from preprocessing import Preprocessor
-from transformers import AutoTokenizer, AutoConfig
-from setting_model_weights import CustomWeights
-from modelling import MultiTaskRoberta
-from model_trainer import ModelTrainer
-from transformers import RobertaModel
+from src.components.data_ingestion import DataIngestion
+from src.components.preprocessing import Preprocessor
+from transformers import AutoTokenizer
+from src.components.setting_model_weights import CustomWeights
+from src.components.modelling import MultiTaskRoberta
+from src.components.model_trainer import ModelTrainer
 
 if __name__ == "__main__":
 
     # 1. Data collection
-
     # invoke data ingestion class
     train_ingestor = DataIngestion(set='train')
     validation_ingestor = DataIngestion(set='validation')
@@ -56,18 +54,18 @@ if __name__ == "__main__":
     # Start training
     # In main_engine.py
 
-    # Start training
-    train_result = trainer.train()
-    print("\nTraining complete!")
+    def training(trainer, tokenizer, save_directory = "./custom_roberta_multitask_final"):
+        # Start training
+        train_result = trainer.train()
+        print("\nTraining complete!")
 
-    # Access metrics from the training result
-    final_metrics = train_result.metrics
-    print(f"Final Best Metric: {final_metrics.get('eval_emo_f1_macro')}")
+        # Access metrics from the training result
+        final_metrics = train_result.metrics
+        print(f"Final Best Metric: {final_metrics.get('eval_emo_f1_macro')}")
 
-    # Save model
-    print("\nSaving the model and tokenizer to disk...")
-    save_directory = "./custom_roberta_multitask_final"
-    trainer.save_model(save_directory)
-    tokenizer.save_pretrained(save_directory)
+        # Save model
+        print("\nSaving the model and tokenizer to disk...")
+        trainer.save_model(save_directory)
+        tokenizer.save_pretrained(save_directory)
 
-    print(f"Model successfully saved to {save_directory}. Ready for deployment!")
+        print(f"Model successfully saved to {save_directory}. Ready for deployment!")

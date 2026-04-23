@@ -72,6 +72,7 @@ class ModelTrainer():
             report_to=[],
 
             # main conditions for custom model
+            lr_scheduler_type="cosine",
             label_names= ['label_emo', 'label_act'],
             load_best_model_at_end= True,
             metric_for_best_model='emo_f1_macro',

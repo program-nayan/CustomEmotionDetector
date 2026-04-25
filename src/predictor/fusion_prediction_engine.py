@@ -37,7 +37,3 @@ class FusionPredictor():
         
         return final_emo_scores, final_act_scores
 
-fp_object = FusionPredictor()
-emo, act = fp_object.fuse_scores(text="I am feeling quite great", context="You are saying like its not the case otherwise for you")
-print(emo)
-print(act)

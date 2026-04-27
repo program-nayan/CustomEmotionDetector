@@ -22,39 +22,37 @@ class GeminiEmotion():
         You are an expert system designed to detect emotions and classify them into these seven different emotion classes : {self.emo_map} and these four different action categories {self.act_map}.
         You classify the sentences into these labels by using context and text pairs. You are expert at detecting emotion in sarcasm.
         Role : 
-        Categorize the given text : {text} and the context {context} into given emotions : {self.emo_map} and actions : {self.act_map}.
+        Categorize the given text : "{text}" and the context "{context}" into given emotions : {self.emo_map} and actions : {self.act_map}.
         Constraints :
-        1. STRICTLY RETURN A JSON OBJECT NOTHING ELSE
-        2. RETURN THE ANSWER IN THE FORMAT PROVIDED IN THE EXAMPLE
-        3. Sarcasm value should be boolean (first letter capitalised)
-        5. Do not put label number in inverted commas "0" put it in integer format like 0
+        1. STRICTLY RETURN A VALID JSON OBJECT NOTHING ELSE.
+        2. Sarcasm value should be a boolean (true/false).
+        3. Emotion and Act keys should be the integer labels (0-6 and 0-3).
         Task : 
-        Return a JSON object containing the following data : Emotion labels and their probabilities, Act labels and their probabilities.
-        Example : 
-        Input = > {{Context : My close friend died yesterday,  Text : I don't know what to say}}
-        Output = >  {{ 
-            {{Is Sarcasm : True}},
-        {{Emotion : {{ 0 : 0.13, 1 : 0.04, 2 : 0.11, 3 : 0.05, 4 : 0.01, 5 : 0.65, 6 : 0.01}} }}, 
-        {{Act : {{ 0 : 0.73, 1 : 0.20, 2 : 0.04, 3 : 0.03}}}}
+        Return a JSON object with keys: "Is Sarcasm", "Emotion", "Act".
+        Example Output:
+        {{
+            "Is Sarcasm": false,
+            "Emotion": {{ "0": 0.1, "1": 0.05, "2": 0.05, "3": 0.05, "4": 0.05, "5": 0.6, "6": 0.1 }},
+            "Act": {{ "0": 0.8, "1": 0.1, "2": 0.05, "3": 0.05 }}
         }}'''
         
-        res = self.client.models.generate_content(
-            model= self.MODEL_NAME, 
-            contents=self.prompt)
-
-
-        # 1. Clean the markdown backticks from the string
-        raw_output = res.text
-        clean_string = re.sub(r'```json|```', '', raw_output).strip()
-
-        # 2. Parse using ast.literal_eval (safe for Python-style literals)
         try:
-            data_dict = ast.literal_eval(clean_string)
+            res = self.client.models.generate_content(
+                model= self.MODEL_NAME, 
+                contents=self.prompt)
             
-            # 3. Extract your variables
+            raw_output = res.text
+            # Clean potential markdown backticks
+            clean_string = re.sub(r'```json|```', '', raw_output).strip()
+            
+            # Use json.loads for standard JSON parsing
+            import json
+            data_dict = json.loads(clean_string)
+            
+            # Map string keys back to integers if necessary
+            emotion_scores = {int(k): v for k, v in data_dict.get("Emotion", {}).items()}
+            act_scores = {int(k): v for k, v in data_dict.get("Act", {}).items()}
             flag_sarcasm = data_dict.get("Is Sarcasm", False)
-            emotion_scores = data_dict.get("Emotion", {})
-            act_scores  = data_dict.get("Act", {})
 
             return {
                 "Is Sarcasm" : flag_sarcasm, 
@@ -62,8 +60,13 @@ class GeminiEmotion():
                 "Act Scores" : act_scores
             }
 
-        except (ValueError, SyntaxError) as e:
-            print(f"Parsing failed: {e}")
-            return res
+        except Exception as e:
+            print(f"Gemini Prediction/Parsing failed: {e}")
+            # Return a safe neutral default to prevent downstream crashes
+            return {
+                "Is Sarcasm": False,
+                "Emotion Scores": {i: (1.0 if i==0 else 0.0) for i in range(7)},
+                "Act Scores": {i: (1.0 if i==0 else 0.0) for i in range(4)}
+            }
             
         

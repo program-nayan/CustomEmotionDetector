@@ -1,6 +1,25 @@
-myenv/
-Data/
-__pycache__/
-custom_roberta_checkpoints/
+# --- Environment & Secrets ---
 .env
+myenv/
+venv/
+.python-version
+
+# --- Database & Local Data ---
+wellness_assistant.db
+Data/
+
+# --- Large AI Models ---
+custom_roberta_checkpoints/
 custom_roberta_multitask_final/
+
+# --- Logs & Runtime ---
+logs/
+*.log
+__pycache__/
+*.py[cod]
+
+# --- IDE & Jupyter Junk ---
+.vscode/
+.idea/
+.ipynb_checkpoints/
+.DS_Store

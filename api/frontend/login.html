@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sign In — Serenity</title>
+  <meta name="description" content="Sign in to Serenity, your AI mental wellness companion." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/css/main.css" />
+</head>
+<body class="page-auth">
+
+  <!-- Ambient background -->
+  <div class="ambient-bg">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+  </div>
+
+  <!-- Back to home -->
+  <a href="/" class="back-link">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="16"><path fill-rule="evenodd" d="M17 10a.75.75 0 01-.75.75H5.612l4.158 3.96a.75.75 0 11-1.04 1.08l-5.5-5.25a.75.75 0 010-1.08l5.5-5.25a.75.75 0 111.04 1.08L5.612 9.25H16.25A.75.75 0 0117 10z"/></svg>
+    Back to home
+  </a>
+
+  <div class="auth-container">
+    <!-- Brand -->
+    <div class="auth-brand animate-fade-up">
+      <span class="auth-brand-icon">🌙</span>
+      <span class="auth-brand-name">Serenity</span>
+    </div>
+
+    <div class="auth-card glass animate-fade-up delay-1">
+      <!-- Tabs -->
+      <div class="auth-tabs" role="tablist">
+        <button class="auth-tab active" id="tab-login" role="tab" aria-selected="true" onclick="switchTab('login')">Sign In</button>
+        <button class="auth-tab" id="tab-signup" role="tab" aria-selected="false" onclick="switchTab('signup')">Create Account</button>
+      </div>
+
+      <!-- Login Form -->
+      <div id="panel-login" class="auth-panel" role="tabpanel">
+        <div class="auth-welcome">
+          <h1 class="auth-title">Welcome back 💙</h1>
+          <p class="auth-subtitle">Your evening companion is waiting.</p>
+        </div>
+        <form id="form-login" class="auth-form" onsubmit="handleLogin(event)">
+          <div class="form-group">
+            <label for="login-username" class="form-label">Username</label>
+            <input type="text" id="login-username" class="form-input" placeholder="your_username" required autocomplete="username" />
+          </div>
+          <div class="form-group">
+            <label for="login-password" class="form-label">Password</label>
+            <div class="input-wrapper">
+              <input type="password" id="login-password" class="form-input" placeholder="••••••••" required autocomplete="current-password" />
+              <button type="button" class="input-toggle-pw" onclick="togglePassword('login-password', this)" aria-label="Toggle password visibility">👁</button>
+            </div>
+          </div>
+          <div id="login-error" class="form-error" style="display:none"></div>
+          <button type="submit" id="btn-login" class="btn btn-primary btn-full" aria-label="Sign In">
+            <span>Sign In</span>
+            <div class="btn-spinner" style="display:none"></div>
+          </button>
+        </form>
+      </div>
+
+      <!-- Signup Form -->
+      <div id="panel-signup" class="auth-panel" role="tabpanel" style="display:none">
+        <div class="auth-welcome">
+          <h1 class="auth-title">Start your journey 🌱</h1>
+          <p class="auth-subtitle">Create your free wellness account.</p>
+        </div>
+        <form id="form-signup" class="auth-form" onsubmit="handleSignup(event)">
+          <div class="form-group">
+            <label for="signup-username" class="form-label">Username</label>
+            <input type="text" id="signup-username" class="form-input" placeholder="choose_a_name" required autocomplete="username" />
+          </div>
+          <div class="form-group">
+            <label for="signup-email" class="form-label">Email <span class="optional">(optional)</span></label>
+            <input type="email" id="signup-email" class="form-input" placeholder="you@example.com" autocomplete="email" />
+          </div>
+          <div class="form-group">
+            <label for="signup-password" class="form-label">Password</label>
+            <div class="input-wrapper">
+              <input type="password" id="signup-password" class="form-input" placeholder="at least 6 characters" required autocomplete="new-password" minlength="6" />
+              <button type="button" class="input-toggle-pw" onclick="togglePassword('signup-password', this)" aria-label="Toggle password visibility">👁</button>
+            </div>
+          </div>
+          <div id="signup-error" class="form-error" style="display:none"></div>
+          <button type="submit" id="btn-signup" class="btn btn-primary btn-full" aria-label="Create Account">
+            <span>Create Account</span>
+            <div class="btn-spinner" style="display:none"></div>
+          </button>
+        </form>
+      </div>
+
+      <!-- Divider -->
+      <div class="auth-divider">
+        <span>or</span>
+      </div>
+
+      <!-- Anonymous Chat -->
+      <button id="btn-anon" class="btn btn-ghost btn-full" onclick="handleAnonymous()" aria-label="Continue Anonymously">
+        💬 Continue Anonymously
+      </button>
+
+      <p class="auth-disclaimer">
+        Serenity is a wellness companion, not a clinical service.
+        Data is stored locally on this server only.
+      </p>
+    </div>
+  </div>
+
+  <script src="/static/js/auth.js"></script>
+</body>
+</html>

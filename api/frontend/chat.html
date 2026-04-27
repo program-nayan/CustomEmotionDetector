@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chat with Serenity</title>
+  <meta name="description"
+    content="Talk to Serenity, your AI wellness companion. Reflect on your day, track your mood, and receive personalized support." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="/static/css/main.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+  <style>
+    @media (max-width: 640px) {
+      div[style*="grid-template-columns:1fr 1fr"] {
+        grid-template-columns: 1fr !important;
+      }
+    }
+
+    .emotion-chart canvas {
+      max-height: 260px;
+    }
+  </style>
+
+  <style>
+    /* ── Topbar emotion pill ─────────────────────────────────── */
+    #topbar-emotion-pill {
+      display: none;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 12px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.3s ease;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(8px);
+      user-select: none;
+      white-space: nowrap;
+    }
+
+    #topbar-emotion-pill:hover {
+      transform: translateY(-1px);
+    }
+
+    #topbar-emotion-pill .pill-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      animation: pillPulse 2s infinite;
+    }
+
+    @keyframes pillPulse {
+
+      0%,
+      100% {
+        opacity: 0.6;
+        transform: scale(1);
+      }
+
+      50% {
+        opacity: 0.3;
+        transform: scale(1.25);
+      }
+    }
+
+    /* per-emotion colour variables on the pill */
+    #topbar-emotion-pill[data-emo="neutral"] {
+      --pill-color: #94a3b8;
+    }
+
+    #topbar-emotion-pill[data-emo="anger"] {
+      --pill-color: #f87171;
+    }
+
+    #topbar-emotion-pill[data-emo="disgust"] {
+      --pill-color: #a3e635;
+    }
+
+    #topbar-emotion-pill[data-emo="fear"] {
+      --pill-color: #fbbf24;
+    }
+
+    #topbar-emotion-pill[data-emo="happiness"] {
+      --pill-color: #34d399;
+    }
+
+    #topbar-emotion-pill[data-emo="sadness"] {
+      --pill-color: #7dd3fc;
+    }
+
+    #topbar-emotion-pill[data-emo="surprise"] {
+      --pill-color: #a78bfa;
+    }
+
+    #topbar-emotion-pill .pill-dot {
+      background: var(--pill-color, #94a3b8);
+    }
+
+    #topbar-emotion-pill {
+      box-shadow: 0 0 0 0 var(--pill-color, transparent);
+    }
+
+    #topbar-emotion-pill[data-emo]:not([data-emo="neutral"]) {
+      box-shadow: 0 0 10px -2px var(--pill-color);
+    }
+  </style>
+</head>
+
+<body class="page-chat">
+
+  <!-- Ambient background for dynamic emotional lighting -->
+  <div class="ambient-bg" id="ambient-bg">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+  </div>
+
+  <!-- Sidebar -->
+  <aside class="sidebar glass" id="sidebar" aria-label="Navigation sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-brand">
+        <span>🌙</span>
+        <span class="brand-name">Serenity</span>
+      </div>
+      <button class="sidebar-close" id="btn-sidebar-close" onclick="toggleSidebar()"
+        aria-label="Close sidebar">✕</button>
+    </div>
+
+    <div class="sidebar-user" id="sidebar-user">
+      <div class="user-avatar" id="user-avatar-letter">S</div>
+      <div>
+        <div class="user-display-name" id="user-display-name">Loading...</div>
+        <div class="user-tag" id="user-tag">wellness companion</div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav" aria-label="Main navigation">
+      <a class="sidebar-link active" href="#" id="nav-chat" onclick="showView('chat')" aria-current="page">
+        <span class="sidebar-icon">💬</span> Chat
+      </a>
+      <a class="sidebar-link" href="#" id="nav-dashboard" onclick="showView('dashboard')">
+        <span class="sidebar-icon">📊</span> Dashboard
+      </a>
+      <a class="sidebar-link" href="#" id="nav-history" onclick="showView('history')">
+        <span class="sidebar-icon">📖</span> History
+      </a>
+    </nav>
+
+    <div class="sidebar-sessions" id="sidebar-sessions">
+      <div class="sidebar-section-title">Recent Sessions</div>
+      <div id="session-list" class="session-list">
+        <div class="loading-placeholder">Loading sessions...</div>
+      </div>
+    </div>
+
+    <div class="sidebar-footer">
+      <button class="btn btn-ghost btn-sm" onclick="newSession()" id="btn-new-session" aria-label="Start new session">
+        ✨ New Check-in
+      </button>
+      <button class="btn btn-ghost btn-sm sidebar-logout" onclick="logout()" aria-label="Sign out">
+        Sign Out
+      </button>
+    </div>
+  </aside>
+
+  <!-- Sidebar overlay (mobile) -->
+  <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+  <!-- Main Content -->
+  <main class="chat-main" id="chat-main">
+
+    <!-- Top bar -->
+    <header class="chat-topbar glass">
+      <button class="sidebar-toggle" id="btn-sidebar-open" onclick="toggleSidebar()" aria-label="Open sidebar">
+        <span></span><span></span><span></span>
+      </button>
+      <div class="topbar-title">
+        <span class="topbar-icon">🌙</span>
+        <div>
+          <div class="topbar-name" id="topbar-session-name">Evening Check-in</div>
+          <div class="topbar-status" id="topbar-status">
+            <span class="status-dot"></span> Serenity is listening
+          </div>
+        </div>
+      </div>
+      <div class="topbar-actions">
+        <!-- Live emotion pill — shown after first prediction -->
+        <button id="topbar-emotion-pill" data-emo="neutral" onclick="toggleEmotionStrip()"
+          title="Current detected emotion — click to see breakdown" aria-label="Current emotion">
+          <span class="pill-dot"></span>
+          <span id="pill-emo-icon">😐</span>
+          <span id="pill-emo-label">Neutral</span>
+        </button>
+        <button class="btn btn-ghost btn-sm" onclick="endSession()" id="btn-end-session" title="End session"
+          aria-label="End session">
+          ✓ End Session
+        </button>
+      </div>
+    </header>
+
+    <!-- ─── CHAT VIEW ─────────────────────────────────────────── -->
+    <div id="view-chat" class="view active">
+
+      <!-- Messages area -->
+      <div class="messages-area" id="messages-area" role="log" aria-label="Conversation" aria-live="polite">
+        <div class="welcome-state" id="welcome-state">
+          <div class="welcome-icon">🌙</div>
+          <h2 class="welcome-title">Welcome to your evening check-in</h2>
+          <p class="welcome-subtitle">Serenity will guide you through a gentle reflection of your day.</p>
+          <button class="btn btn-primary btn-large" onclick="beginCheckin()" id="btn-begin" aria-label="Begin check-in">
+            Begin Tonight's Check-in ✨
+          </button>
+        </div>
+      </div>
+
+      <!-- Typing indicator -->
+      <div class="typing-indicator" id="typing-indicator" style="display:none" aria-label="Serenity is typing">
+        <div class="typing-avatar">🌙</div>
+        <div class="typing-dots">
+          <span></span><span></span><span></span>
+        </div>
+      </div>
+
+      <!-- Emotion badge strip -->
+      <div class="emotion-strip" id="emotion-strip" style="display:none">
+        <div class="current-emotion" id="current-emotion-display">
+          <span id="current-emotion-icon">😐</span>
+          <span id="current-emotion-label">Neutral</span>
+          <div class="emotion-bars" id="emotion-bars"></div>
+        </div>
+      </div>
+
+      <!-- Input area -->
+      <div class="input-area glass" id="input-area">
+        <div class="wellness-tip-bar" id="wellness-tip-bar" style="display:none">
+          <span class="tip-icon">🌿</span>
+          <span id="wellness-tip-text"></span>
+          <button onclick="dismissTip()" class="tip-dismiss" aria-label="Dismiss tip">✕</button>
+        </div>
+        <div class="input-row">
+          <textarea id="chat-input" class="chat-textarea" placeholder="Share how you're feeling..." rows="1"
+            maxlength="2000" onkeydown="handleInputKeydown(event)" oninput="autoResize(this)"
+            aria-label="Message input"></textarea>
+          <button id="send-btn" class="send-button" onclick="sendMessage()" disabled aria-label="Send message">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="20">
+              <path
+                d="M3.105 2.289a.75.75 0 00-.826.95l1.414 4.925A1.5 1.5 0 005.135 9.25h6.115a.75.75 0 010 1.5H5.135a1.5 1.5 0 00-1.442 1.086l-1.414 4.926a.75.75 0 00.826.95 28.896 28.896 0 0015.293-7.154.75.75 0 000-1.115A28.897 28.897 0 003.105 2.289z" />
+            </svg>
+          </button>
+        </div>
+        <div class="input-footer">
+          <span class="char-count" id="char-count">0 / 2000</span>
+          <span class="input-hint">Press Enter to send · Shift+Enter for new line</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── DASHBOARD VIEW ────────────────────────────────────── -->
+    <div id="view-dashboard" class="view" style="display:none">
+      <div class="view-header">
+        <h1 class="view-title">Your Mood Dashboard</h1>
+        <div class="dashboard-tabs">
+          <button class="dash-tab active" onclick="switchDashboard('daily')" id="dtab-daily">Today</button>
+          <button class="dash-tab" onclick="switchDashboard('weekly')" id="dtab-weekly">This Week</button>
+        </div>
+      </div>
+
+      <!-- Daily Dashboard -->
+      <div id="dashboard-daily" class="dashboard-panel">
+        <div id="daily-content" class="dashboard-content">
+          <div class="loading-state">
+            <div class="loading-spinner"></div>
+            <p>Loading your daily insights...</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Weekly Dashboard -->
+      <div id="dashboard-weekly" class="dashboard-panel" style="display:none">
+        <div id="weekly-content" class="dashboard-content">
+          <div class="loading-state">
+            <div class="loading-spinner"></div>
+            <p>Loading your weekly insights...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── HISTORY VIEW ──────────────────────────────────────── -->
+    <div id="view-history" class="view" style="display:none">
+      <div class="view-header">
+        <h1 class="view-title">Session History</h1>
+      </div>
+      <div id="history-content" class="history-content">
+        <div class="loading-state">
+          <div class="loading-spinner"></div>
+          <p>Loading sessions...</p>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Crisis Alert Modal -->
+  <div class="modal-overlay" id="crisis-modal" style="display:none" role="dialog" aria-modal="true"
+    aria-label="Crisis support">
+    <div class="modal-card glass">
+      <div class="modal-icon">🆘</div>
+      <h2 class="modal-title">You're not alone</h2>
+      <p class="modal-body">I noticed some signs of distress in what you shared. Please reach out to a professional —
+        they are ready to help right now.</p>
+      <div class="crisis-resources">
+        <div class="crisis-line">
+          <span>iCall (India)</span>
+          <a href="tel:9152987821">9152987821</a>
+        </div>
+        <div class="crisis-line">
+          <span>Vandrevala Foundation</span>
+          <a href="tel:18602662345">1860-2662-345</a>
+        </div>
+        <div class="crisis-line">
+          <span>Crisis Text Line</span>
+          <span>Text HOME to 741741</span>
+        </div>
+      </div>
+      <button class="btn btn-primary btn-full" onclick="closeCrisisModal()" aria-label="I understand">I understand,
+        continue chatting 💙</button>
+    </div>
+  </div>
+
+  <script src="/static/js/chat.js"></script>
+</body>
+
+</html>

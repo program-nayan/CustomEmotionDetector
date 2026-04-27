@@ -20,12 +20,18 @@ class FusionPredictor():
         # Shift weights to gemini model if predicition is neutral
         if predicted_roberta_label == 0:
             r_weight, g_weight = 0.2, 0.8
+            strategy = "Neutral/Gemini-Heavy"
         # A little more weight to gemini for sarcasm 
         elif is_sarcasm:
             r_weight, g_weight = 0.4, 0.6
+            strategy = "Sarcasm/Gemini-Boost"
         # More weight to roberta model for general use cases
         else:
             r_weight, g_weight = 0.7, 0.3
+            strategy = "General/RoBERTa-Heavy"
+
+        from api.core.logger import logger
+        logger.debug(f"Fusion Strategy: {strategy} (Sarcasm: {is_sarcasm})")
 
         final_emo_scores = {
             rkey : (r_weight * rvalue + g_weight * gvalue)

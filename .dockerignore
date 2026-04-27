@@ -11,6 +11,12 @@ env/
 **/*.pyo
 **/*.pyd
 
+# Ignore training data
+Data/
+
+# Ignore the checkpoints of roberta model
+custom_roberta_checkpoints/
+
 # Ignore local database if you want a fresh one in Docker
 wellness_assistant.db
 
@@ -21,6 +27,3 @@ wellness_assistant.db
 # Ignore logs
 logs/
 
-# Ignore local checkpoints or large data if they should be downloaded/mounted instead
-# custom_roberta_checkpoints/
-# custom_roberta_multitask_final/

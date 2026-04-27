@@ -1,0 +1,26 @@
+# Ignore virtual environments
+myenv/
+venv/
+.env
+.venv/
+env/
+
+# Ignore Python cache
+**/__pycache__/
+**/*.pyc
+**/*.pyo
+**/*.pyd
+
+# Ignore local database if you want a fresh one in Docker
+wellness_assistant.db
+
+# Ignore Git history
+.git/
+.gitignore
+
+# Ignore logs
+logs/
+
+# Ignore local checkpoints or large data if they should be downloaded/mounted instead
+# custom_roberta_checkpoints/
+# custom_roberta_multitask_final/

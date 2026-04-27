@@ -1,11 +1,3 @@
-"""
-Authentication utilities: JWT tokens, password hashing, dependency helpers.
-
-NOTE: passlib 1.7.4 is incompatible with bcrypt 4.x/5.x — it raises
-      ValueError("password cannot be longer than 72 bytes") on every call.
-      We bypass passlib and call bcrypt directly instead.
-"""
-
 import os
 import bcrypt
 from datetime import datetime, timedelta, timezone

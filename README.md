@@ -61,7 +61,12 @@ Whether you're looking for a safe space to vent, daily emotional analytics, or g
 
 ### Running the App
 
-You can start the server directly using the helper script:
+You need to first train the model in the src folder using:
+```bash
+python src.main.main_engine
+```
+
+You can now start the server directly using the helper script:
 ```bash
 python run_server.py
 ```
@@ -125,6 +130,3 @@ The project relies on pre-trained weights stored in `custom_roberta_multitask_fi
 Contributions are welcome! If you find a bug or have a feature suggestion, feel free to open an issue or submit a pull request.
 
 ---
-
-## 📜 License
-This project is licensed under the MIT License - see the LICENSE file for details.

@@ -5,11 +5,11 @@ import re
 import ast
 
 class GeminiEmotion():
-    def __init__(self, model="models/gemma-3-27b-it"):
+    def __init__(self, model="models/gemini-3.1-flash-lite"):
         load_dotenv()
 
         GEMINI_API = os.getenv("GEMINI_API_KEY")
-        self.MODEL_NAME = "models/gemma-3-27b-it"
+        self.MODEL_NAME = "models/gemini-3.1-flash-lite"
         self.client = genai.Client(api_key= GEMINI_API)
 
         self.emo_map = {0: "neutral", 1: "anger", 2: "disgust", 3: "fear", 4: "happiness", 5: "sadness", 6: "surprise"}

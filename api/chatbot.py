@@ -14,7 +14,7 @@ from typing import List, Dict, Optional, Tuple
 load_dotenv()
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-CHAT_MODEL = "models/gemma-3-27b-it"
+CHAT_MODEL = "models/gemini-3.1-flash-lite"
 
 # Conversation flow questions for guided end-of-day check-in
 CHECKIN_FLOW = [

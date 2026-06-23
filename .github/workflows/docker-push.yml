@@ -1,3 +1,4 @@
+# Setting up actions
 name: Push to Docker Hub
 
 on:
